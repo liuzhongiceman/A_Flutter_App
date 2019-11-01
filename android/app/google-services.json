@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "775604947650",
+    "firebase_url": "https://garage-sale-e4c2d.firebaseio.com",
+    "project_id": "garage-sale-e4c2d",
+    "storage_bucket": "garage-sale-e4c2d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:775604947650:android:5a31ae0bc8d7a1605fc95b",
+        "android_client_info": {
+          "package_name": "com.zhongliu.garageSale"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "775604947650-jt07mik8dqd126sotgvcdbh4gssgodoe.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA9sXTDnZsidDg38xKm8B1wia0SJSdRixw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "775604947650-jt07mik8dqd126sotgvcdbh4gssgodoe.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "775604947650-tfvu1s79cg9gpsuli1cpd3ujoa0poubk.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.zhongliu.hyperGarageSale"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
