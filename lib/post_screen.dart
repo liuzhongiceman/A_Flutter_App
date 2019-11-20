@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hyper_garage_sale/post_item.dart';
 import 'list_view_screen.dart';
 import 'camera_screen.dart';
 import 'package:camera/camera.dart';
@@ -9,9 +10,18 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'constants.dart';
 import 'welcome_screen.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
+import 'label_item.dart';
+import 'post_item.dart';
+
 
 class PostPage extends StatefulWidget {
   static const id = 'postpage';
+  final List<String> labels;
+  final String image_path;
+  final Post_item item;
+  const PostPage({Key key, this.labels, this.image_path, this.item})
+      : super(key: key);
+
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
@@ -23,14 +33,19 @@ class _MyHomePageState extends State<PostPage> {
   String title = "";
   int price = 0;
   String description = "";
-  String image_path = "";
+//  String image_path = "";
+
   String url;
+//  List<String> labels;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     getCurrentUser();
+    if (widget.image_path != null) {
+      uploadImage();
+    }
   }
 
   void getCurrentUser() async {
@@ -61,7 +76,7 @@ class _MyHomePageState extends State<PostPage> {
     var timeKey = new DateTime.now();
     final StorageUploadTask uploadTask = postImageRef
         .child(timeKey.toString() + ".jpg")
-        .putFile(File(image_path));
+        .putFile(File(widget.image_path));
     var ImageUrl = await (await uploadTask.onComplete).ref.getDownloadURL();
     setState(() {
       url = ImageUrl;
@@ -145,10 +160,10 @@ class _MyHomePageState extends State<PostPage> {
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.only(bottom: 8.0),
-                    child: image_path == ""
+                    child: widget.image_path == null
                         ? null
                         : Image.file(
-                            File(image_path),
+                            File(widget.image_path),
                             width: 120,
                             height: 120,
                           ),
@@ -166,20 +181,21 @@ class _MyHomePageState extends State<PostPage> {
                                 onPressed: () async {
                                   final cameras = await availableCameras();
                                   final firstCamera = cameras.first;
+                                  final item = Post_item(user:loggedInUser.email, price: price, title :title, description: description,imagePath: null, labels: null);
                                   final result = await Navigator.push(
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) => TakePictureScreen(
-                                            camera: firstCamera),
+                                            camera: firstCamera, item: item,),
                                       ));
                                   print(result);
-                                  setState(() {
-                                    image_path = result;
-                                  });
+//                                  setState(() {
+//                                    image_path = result;
+//                                  });
                                 },
                                 color: Colors.pink,
                                 textColor: Colors.black,
-                                child: image_path == ""
+                                child: widget.image_path == null
                                     ? Text('Take a picture')
                                     : Text('Retake a picture'));
                           },
@@ -195,12 +211,26 @@ class _MyHomePageState extends State<PostPage> {
                                   showSpinner = true;
                                 });
                                 try {
-                                  uploadImage();
+//                                  uploadImage();
                                   titleController.clear();
                                   priceController.clear();
                                   descriptionController.clear();
                                   setState(() {
                                     showSpinner = false;
+                                  });
+                                  print('widget item info');
+                                  print(widget.item.title);
+                                  print(widget.item.price);
+                                  print(widget.item.description);
+                                  print(url);
+
+                                  _firestore.collection('posts').add({
+                                    'user': loggedInUser.email,
+                                    'title': widget.item.title,
+                                    'price': widget.item.price,
+                                    'description': widget.item.description,
+                                    'image_path': url,
+                                    'labels': widget.labels,
                                   });
                                 } catch (e) {
                                   print(e);
@@ -223,22 +253,21 @@ class _MyHomePageState extends State<PostPage> {
                       builder: (context) {
                         return RaisedButton(
                           onPressed: () async {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => ItemList()));
                             print('before upload' + url);
-                            try {
-                              _firestore.collection('itemsInfo').add({
-                                'user': loggedInUser.email,
-                                'title': title,
-                                'price': price,
-                                'description': description,
-                                'image_path': url
-                              });
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => ItemList()));
-                            } catch (e) {
-                              print(e);
-                            }
+//                            try {
+////                              Navigator.push(
+////                                  context,
+////                                  MaterialPageRoute(
+////                                      builder: (context) => ItemList()));
+//                              Navigator.pushNamed(context, ItemList.id);
+//                            } catch (e) {
+//                              print(e);
+//                            }
+//                            Navigator.pushNamed(context, ItemList.id);
                           },
                           color: Colors.pink,
                           textColor: Colors.black,

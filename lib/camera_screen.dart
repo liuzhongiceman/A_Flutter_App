@@ -4,16 +4,22 @@ import 'package:flutter/material.dart';
 import 'package:path/path.dart' show join;
 import 'package:path_provider/path_provider.dart';
 import 'displayImage_screen.dart';
-
+import 'process_image.dart';
+import 'post_item.dart';
 // A screen that allows users to take a picture using a given camera.
 class TakePictureScreen extends StatefulWidget {
   static String id = 'camera_screen';
   final CameraDescription camera;
+//  final List<String> labels;
+  final Post_item item;
 
   const TakePictureScreen({
     Key key,
-    @required this.camera,
+    @required this.camera, this.item
   }) : super(key: key);
+
+//  const Process_Image({Key key, this.imagePath, this.file, this.list})
+//      : super(key: key);
 
   @override
   TakePictureScreenState createState() => TakePictureScreenState();
@@ -72,16 +78,9 @@ class TakePictureScreenState extends State<TakePictureScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.camera_alt),
-        // Provide an onPressed callback.
         onPressed: () async {
-          // Take the Picture in a try / catch block. If anything goes wrong,
-          // catch the error.
           try {
-            // Ensure that the camera is initialized.
             await _initializeControllerFuture;
-
-            // Construct the path where the image should be saved using the
-            // pattern package.
             final path = join(
               // Store the picture in the temp directory.
               // Find the temp directory using the `path_provider` plugin.
@@ -94,7 +93,9 @@ class TakePictureScreenState extends State<TakePictureScreen> {
             final res = await Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => DisplayPictureScreen(imagePath: path),
+                builder: (context) => DisplayPictureScreen(imagePath: path, item: widget.item),
+//                builder: (context) => Process_Image(imagePath: path),
+
               ),
             );
             Navigator.pop(context, res);

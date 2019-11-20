@@ -2,13 +2,27 @@ import 'package:flutter/material.dart';
 import 'dart:io';
 import 'camera_screen.dart';
 import 'package:camera/camera.dart';
+import 'process_image.dart';
+import "package:mlkit/mlkit.dart";
+import 'post_item.dart';
+
 
 // A widget that displays the picture taken by the user.
-class DisplayPictureScreen extends StatelessWidget {
+class DisplayPictureScreen extends StatefulWidget {
   final String imagePath;
+  final Post_item item;
 
-  const DisplayPictureScreen({Key key, this.imagePath}) : super(key: key);
+  const DisplayPictureScreen({Key key, this.imagePath, this.item}) : super(key: key);
+  @override
+  _DisplayPictureScreenState createState() => _DisplayPictureScreenState();
+}
 
+class _DisplayPictureScreenState extends State<DisplayPictureScreen> {
+  List<VisionLabel> currentLabels = <VisionLabel>[];
+  File file;
+
+
+  FirebaseVisionLabelDetector detector = FirebaseVisionLabelDetector.instance;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -19,7 +33,7 @@ class DisplayPictureScreen extends StatelessWidget {
         body: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              Image.file(File(imagePath)),
+              Image.file(File(widget.imagePath)),
               Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
@@ -28,8 +42,27 @@ class DisplayPictureScreen extends StatelessWidget {
                       child: Builder(
                         builder: (context) {
                           return RaisedButton(
-                            onPressed: () {
-                              Navigator.pop(context, imagePath);
+                            onPressed: () async {
+                              var file = File(widget.imagePath);
+                              setState(() {
+                                file = file;
+                              });
+
+                              var currentLabels =
+                              await detector.detectFromBinary(file?.readAsBytesSync());
+                              setState(() {
+                                currentLabels = currentLabels;
+                              });
+                              final res = await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      Process_Image(imagePath: widget.imagePath, file: file, list:currentLabels, item: widget.item),
+                                ),
+                              );
+                              Navigator.pop(context, widget.imagePath);
+//                              Navigator.pop(context, res);
+                              Navigator.pushNamed(context, Process_Image.id);
                             },
                             color: Colors.pink,
                             textColor: Colors.white,

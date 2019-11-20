@@ -9,6 +9,7 @@ final _firestore = Firestore.instance;
 FirebaseUser loggedInUser;
 
 class ItemList extends StatefulWidget {
+  static String id = 'item_list';
   @override
   _ItemListState createState() => _ItemListState();
 }
@@ -81,7 +82,7 @@ class MessagesStream extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
-      stream: _firestore.collection('itemsInfo').snapshots(),
+      stream: _firestore.collection('posts').snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return Center(
@@ -97,19 +98,22 @@ class MessagesStream extends StatelessWidget {
           final title = message.data['title'];
           final description = message.data['description'];
           final image_path = message.data['image_path'];
+          final labels = message.data['labels'].cast<String>();
           final item = Post_item(
             user: user,
             price: price,
             title: title,
             description: description,
             imagePath: image_path,
+            labels: labels,
           );
           itemList.add(ListTile(
             leading: CircleAvatar(
                 backgroundImage: item.imagePath == null?
                 AssetImage('images/image.png') : NetworkImage(image_path)),
             title: Text( item.title + "        \$" + item.price.toString()),
-            subtitle: Text(item.description + ' by ' + item.user),
+            subtitle: Text('Labels : ' + labels[0] + " , " + labels[1] + " , "+ labels[2] + " , "+labels[3] + " , "+labels[4])
+//            subtitle: Text(item.description + ' by ' + item.user),
           ));
         }
         return ListView(
