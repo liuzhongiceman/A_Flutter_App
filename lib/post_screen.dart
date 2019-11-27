@@ -12,7 +12,7 @@ import 'welcome_screen.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'label_item.dart';
 import 'post_item.dart';
-
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class PostPage extends StatefulWidget {
   static const id = 'postpage';
@@ -27,6 +27,7 @@ class PostPage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<PostPage> {
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
   final _firestore = Firestore.instance;
   FirebaseUser loggedInUser;
   final _auth = FirebaseAuth.instance;
@@ -46,6 +47,14 @@ class _MyHomePageState extends State<PostPage> {
     if (widget.image_path != null) {
       uploadImage();
     }
+    var initializationSettingsAndroid =
+    new AndroidInitializationSettings('app_icon');
+    var initializationSettingsIOS = new IOSInitializationSettings();
+    var initializationSettings = new InitializationSettings(
+        initializationSettingsAndroid, initializationSettingsIOS);
+    flutterLocalNotificationsPlugin = new FlutterLocalNotificationsPlugin();
+    flutterLocalNotificationsPlugin.initialize(initializationSettings,
+        onSelectNotification: onSelectNotification);
   }
 
   void getCurrentUser() async {
@@ -207,6 +216,7 @@ class _MyHomePageState extends State<PostPage> {
                           builder: (context) {
                             return RaisedButton(
                               onPressed: () async {
+                                _showNotificationWithSoundNewPost();
                                 setState(() {
                                   showSpinner = true;
                                 });
@@ -223,7 +233,6 @@ class _MyHomePageState extends State<PostPage> {
                                   print(widget.item.price);
                                   print(widget.item.description);
                                   print(url);
-
                                   _firestore.collection('posts').add({
                                     'user': loggedInUser.email,
                                     'title': widget.item.title,
@@ -282,6 +291,38 @@ class _MyHomePageState extends State<PostPage> {
           ),
         ),
       ),
+    );
+  }
+
+
+  Future _showNotificationWithSoundNewPost() async {
+    var androidPlatformChannelSpecifics = new AndroidNotificationDetails(
+        'Cool stuff here', 'Garage Sale', 'Sell Whatever You want',
+        sound: 'slow_spring_board',
+        importance: Importance.Max,
+        priority: Priority.High);
+    var iOSPlatformChannelSpecifics =
+    new IOSNotificationDetails(sound: "slow_spring_board.aiff");
+    var platformChannelSpecifics = new NotificationDetails(
+        androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
+    await flutterLocalNotificationsPlugin.show(
+      0,
+      'You just added a New Post',
+      'What a wonderful day!',
+      platformChannelSpecifics,
+      payload: 'Custom_Sound',
+    );
+  }
+
+  Future onSelectNotification(String payload) async {
+    showDialog(
+      context: context,
+      builder: (_) {
+        return new AlertDialog(
+          title: Text("PayLoad"),
+          content: Text("Payload : $payload"),
+        );
+      },
     );
   }
 }
